@@ -1,2 +1,2 @@
-# oi-mundo
+# sistema-de-checagem
 em desenvolvimento
