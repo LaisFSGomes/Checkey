@@ -1,2 +1,2 @@
-# sistema-de-checagem-de-noticias
+# oi-mundo
 em desenvolvimento
