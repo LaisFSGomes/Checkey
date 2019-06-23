@@ -1,6 +1,9 @@
 from tkinter import *
+import requests
+import json
 #from Tela02_Sobre import *
-
+chave = 0
+inform = ' '
 class Janela:
     def __init__(self, master=None):
         self.janela = Tk() #Definição e construção da Janela Inicial
@@ -52,14 +55,18 @@ class Janela:
         self.janela.destroy()
 
     def lb1_click(self):           #Será responsável por validar o acesso da chave
-        chave= self.ent.get()
-        if chave == "a":
+        global chave
+        chave = self.ent.get()
+        testeChave = requests.get('https://factchecktools.googleapis.com/v1alpha1/claims:search?query='+'test'+'&key='+chave)
+        status = testeChave.status_code
+        if status >= 200 and status <= 226:
             self.mensagem["text"] = "Autenticado"
             win = Check(self)
+            self.janela.destroy()
         else:
-            self.mensagem["text"] = "Erro na autenticação"
+            self.mensagem["text"] = "Desculpe, mas houve um erro!\nVerifique sua conecção com a internet ou sua chave\nEm caso de dúvidas, Clique no botão Dúvidas"
+            self.ent.delete(0,END)
 
-        self.janela.destroy()
 
 #Classe Sobre, referente a nossa segunda janela
 class Sobre:
@@ -130,7 +137,7 @@ class Check:
         self.janela04.geometry("600x500+350+100")
 
         self.lb6 = Label(
-        self.janela04, text="Digite o assunto que vocÊdeseja que a CHECKEY analise:", bg = "orange")
+        self.janela04, text="Digite o assunto que você deseja que a CHECKEY analise:", bg = "orange")
         self.lb6["font"]=("Arial", "12", "bold")
         self.lb6.place(x=80, y=80)
 
@@ -139,6 +146,7 @@ class Check:
         self.bt6["font"] = ("Arial", "12","bold")
         self.bt6["width"] = 9
         self.bt6.place(x=380, y=205)
+        self.bt6["command"] = self.verificar
 
         self.bt7 = Button(
         self.janela04, text="Voltar", width="8", height="1", bg="brown", fg= 'white')
@@ -168,6 +176,43 @@ class Check:
     def voltar(self):
         self.voltar = Janela()
         self.janela04.destroy()
+
+    def verificar (self):
+        global chave
+        pesquisa = self.ent.get()
+        requisicao = requests.get('https://factchecktools.googleapis.com/v1alpha1/claims:search?query='+pesquisa+'&key='+chave)
+        global inform
+        inform = json.loads(requisicao.text)       #se der certo, retorna isso
+        print(inform)
+        win = Info(self)
+        self.janela04.destroy()
+
+class Info:
+    def __init__(self, master=None):
+        self.janela05 = Tk()
+        self.janela05.title("Informações ")
+        self.janela05["background"] = "orange"
+        self.janela05.geometry("600x500+350+100")
+
+        self.lb8 = Label(
+        self.janela05, text="Sobre a ferramenta Checkey", width=30, height=2, bg ="orange")
+        self.lb8["font"] = ("Arial", "14", "bold")
+        self.lb8.place(x=100, y=50)
+
+        self.lb9 = Label(
+        self.janela05, textvariable= inform, width=40, height=2, bg ="orange")
+        self.lb9["font"] = ("Arial", "14", "bold")
+        self.lb9.place(x=10, y=100)
+
+        self.bt9 = Button(
+        self.janela05, text="Voltar", width="8", height="1", bg="brown")
+        self.bt9["font"] = ("Arial", "12", "bold")
+        self.bt9.place(x=200, y=400)
+        self.bt9["command"] = self.voltar
+
+    def voltar(self):
+            self.voltar = Check()
+            self.janela05.destroy()
 
 root = Tk()
 root.withdraw()
