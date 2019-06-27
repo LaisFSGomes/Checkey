@@ -1,6 +1,7 @@
 from tkinter import *
 import requests
 import json
+import datetime
 #from Tela02_Sobre import *
 chave = 0
 inform = ' '
@@ -13,9 +14,15 @@ class Janela:
         self.janela.geometry("600x500+350+100")  #Define as dimensões da nossa Janela Inicial, tais medidas serâo replicadas para as demais janelas
 
         self.lb = Label(
-        self.janela, text="PROJETO DE ENG.SOFTWARE CHECKEY", bg = "orange") #Definindo o primeiro campo de texto
-        self.lb["font"]=("Arial", "16", "bold")
-        self.lb.place(x=110, y=80)  #Define a posição do elemento na janela
+        self.janela, text="PROJETO DE ENG.SOFTWARE", bg = "orange") #Definindo o primeiro campo de texto
+        self.lb["font"]=("Arial", "18", "bold")
+        self.lb.place(x=115, y=80)  #Define a posição do elemento na janela
+
+        self.lb9 = Label(
+        self.janela, text = "CHECKEY", bg = "orange")
+        self.lb9["font"] = ("Arial", "20", "bold")
+        self.lb9.place(x=220, y=120)  # Define a posição do elemento na janela
+
 
         self.bt1 = Button(
         self.janela,text = "Autenticar", bg = "green", fg= 'white', height= 1) #Definindo o primeiro botão
@@ -145,7 +152,7 @@ class Check:
         self.janela04,text = "Check", bg = "green", fg= 'white', height= 1)
         self.bt6["font"] = ("Arial", "12","bold")
         self.bt6["width"] = 9
-        self.bt6.place(x=380, y=205)
+        self.bt6.place(x=380, y=240)
         self.bt6["command"] = self.verificar
 
         self.bt7 = Button(
@@ -162,12 +169,7 @@ class Check:
 
         self.ent = Entry(
         self.janela04, font="Arial", width=30)
-        self.ent.place(x=100, y=210)
-
-        self.lb7 = Label(
-        self.janela04, text="Informação chegada")
-        self.lb7["font"] = ("Arial", "12", "bold")
-        self.lb7.place(x=100, y=280)
+        self.ent.place(x=100, y=250)
 
     def reset(self):
         #self.ent.icursor(AL)
@@ -190,31 +192,95 @@ class Check:
 class Info:
     def __init__(self, master=None):
         self.janela05 = Tk()
+        self.janela05.protocol("WM_DELETE_WINDOW", self.on_close)
         self.janela05.title("Informações ")
         self.janela05["background"] = "orange"
         self.janela05.geometry("600x500+350+100")
 
         self.lb8 = Label(
-        self.janela05, text="Sobre a ferramenta Checkey", width=30, height=2, bg ="orange")
-        self.lb8["font"] = ("Arial", "14", "bold")
-        self.lb8.place(x=100, y=50)
-
-        self.lb9 = Label(
-        self.janela05, textvariable= inform, width=40, height=2, bg ="orange")
-        self.lb9["font"] = ("Arial", "14", "bold")
-        self.lb9.place(x=10, y=100)
+        self.janela05, text="Fatos checados:", width=15, height=3, bg ="orange")
+        self.lb8["font"] = ("Arial", "15", "bold")
+        self.lb8.place(x=20, y=18)
 
         self.bt9 = Button(
-        self.janela05, text="Voltar", width="8", height="1", bg="brown")
+        self.janela05, text="Voltar", width="8", height="1", bg="brown", fg='white')
         self.bt9["font"] = ("Arial", "12", "bold")
-        self.bt9.place(x=200, y=400)
+        self.bt9.place(x=440, y=440)
         self.bt9["command"] = self.voltar
+
+        self.scrollbar = Scrollbar(self.janela05)
+        self.scrollbar.pack(side=RIGHT, fill=Y)
+
+        self.mylist = Listbox(self.janela05, yscrollcommand=self.scrollbar.set)
+        self.verificarfato()
+
+        self.mylist["width"]=300
+        self.mylist["height"]= 35
+        self.mylist.pack(padx=50, pady=70,side=LEFT, fill=BOTH)
+        self.scrollbar.config(command=self.mylist.yview)
 
     def voltar(self):
             self.voltar = Check()
             self.janela05.destroy()
 
+    def verificarfato(self):
+        try:
+            informacoes = inform['claims']
+            # informacoes é uma lista
+            for elem in informacoes:
+                # elem sao dicionarios)
+                for elemenkey in elem.items():
+                    if elemenkey[0] == 'text':
+                        texto = elemenkey[1]
+                        print('texto: ', texto)
+                        self.mylist.insert(END,"TEXTO: ", texto)
+                    elif elemenkey[0] == 'claimant':
+                        requeredor = elemenkey[1]
+                        print('requeredor: ', requeredor)
+                        self.mylist.insert(END, "REQUEREDOR: ", requeredor)
+                    elif elemenkey[0] == 'claimDate':
+                        DataReclamacao = elemenkey[1]
+                        print('data da reclamação ', DataReclamacao)
+                        date_format = "%Y-%m-%dT%H:%M:%SZ"
+                        dt = datetime.datetime.strptime(DataReclamacao, date_format)
+                        #dt = datetime.datetime.strptime(dt,"(%H:%M%S %Y-%m-%d)")
+                        #self.mylist.insert(END, "DATA DA RECLAMAÇÃO: ", DataReclamacao)
+                        self.mylist.insert(END, "DATA DA RECLAMAÇÃO: ", dt)
+                    elif elemenkey[0] == 'claimReview':
+                        # print(type(elemenkey[1]))
+                        for elemkeysdicts in elemenkey[1]:
+                            # print(type(elemkeysdicts))
+                            for dici in elemkeysdicts.items():
+                                if dici[0] == 'url':
+                                    fonte = dici[1]
+                                    print('fonte: ', fonte)
+                                    self.mylist.insert(END, "Fonte: ", fonte)
+                                elif dici[0] == 'title':
+                                    titulo = dici[1]
+                                    print('titulo:', titulo)
+                                    self.mylist.insert(END, "Titulo: ", titulo)
+
+                                elif dici[0] == 'reviewDate':
+                                    DataRevisao = dici[1]
+                                    print('Data de Revisão: ', DataRevisao)
+                                    date_format = "%Y-%m-%dT%H:%M:%SZ"
+                                    dt = datetime.datetime.strptime(DataReclamacao, date_format)
+                                    self.mylist.insert(END, "Data de Revisão: ", dt)
+                                elif dici[0] == 'textualRating':
+                                    veracidade = dici[1]
+                                    print('avaiação textual: ', veracidade)
+                                    self.mylist.insert(END, "Veracidade: ", veracidade)
+                print('\n')
+        except Exception as erro:
+            print('algo deu errado\n', erro)
+
+    def on_close(self):
+        self.janela05.destroy()
+        root.destroy()
+
 root = Tk()
+
 root.withdraw()
 Janela(root)
+
 root.mainloop()
