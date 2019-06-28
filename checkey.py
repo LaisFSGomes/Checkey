@@ -49,7 +49,6 @@ class Janela:
         self.ent = Entry(
         self.janela, font= "Arial", width= 25)  #Criando e definindo o nosso primeiro campo de entrada de dados
         self.ent.place(x=140, y=230)
-        self.ent.insert(0, 'AIzaSyD8GC7dfcNtPCKOes-HepvWdKgF8RiaLf4')
 
 
         self.mensagem = Label(
@@ -136,7 +135,7 @@ class Duvidas:
         self.scrollbar.pack(side=RIGHT, fill=Y)
 
         self.mylist = Listbox(self.janela03, yscrollcommand=self.scrollbar.set)
-        self.mylist.insert(END, "AIzaSyD8GC7dfcNtPCKOes-HepvWdKgF8RiaLf4")
+        
 
 
         self.bt5 = Button(
