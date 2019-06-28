@@ -265,7 +265,7 @@ class Info:
                                     self.mylist.insert(END, "Veracidade: ", veracidade)
                 print('\n')
                 self.mylist.insert(END, '----------------------------------------------------------------------')
-        except Exception as erro:
+        except:
             global pesquisa
             self.mylist.insert(END, 'a sua pesquisa', pesquisa, 'ainda não foi vericada pela Fact Checker Tools API')
 
